@@ -1,15 +1,17 @@
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QPushButton, QListWidget, QLabel, QSizePolicy, QScrollArea
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
+from src.views.add_trip_dialog import AddTripDialog
+
 
 class MainWindow(QMainWindow):
     def __init__(self, icon_path):
         super().__init__()
-
+        self.icon_path = icon_path
         self.setWindowTitle("TripPlanner")
         self.setMinimumSize(640, 480)
-        if icon_path.exists():
-            self.setWindowIcon(QIcon(str(icon_path)))
+        if self.icon_path.exists():
+            self.setWindowIcon(QIcon(str(self.icon_path)))
 
         layout = QSplitter(Qt.Orientation.Horizontal)
         left_container = QWidget()
@@ -50,12 +52,21 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(layout)
 
-    def add_test_trip(self):
-        global i
-        i += 1
-        self.trip_list.addItem(f"Новая поездка {i}")
 
-    def del_test_trip(self):
+    def add_trip(self):
+        dialog = AddTripDialog(self)
+
+        if dialog.exec():
+            trip_name, trip_first_day, trip_last_day, trip_description = dialog.get_data()
+            print(trip_name)
+            print(trip_first_day)
+            print(trip_last_day)
+            print(trip_description)
+            print("________________________________")
+            self.trip_list.addItem(trip_name)
+
+
+    def del_trip(self):
         current_row = self.trip_list.currentRow()
 
         if current_row != -1:
@@ -67,16 +78,10 @@ class MainWindow(QMainWindow):
 
             new_row = -1
             self.trip_list.setCurrentRow(new_row)
+            self.update_info()
         else:
             print("Сначала выберите поездку для удаления!")
 
-    def add_trip(self):
-        self.add_test_trip()
-
-    def del_trip(self):
-        self.del_test_trip()
 
     def update_info(self):
         print(f'update row {self.trip_list.currentRow() + 1}')
-
-i = 0
