@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QWidget, QLineEdit, QTextEdit, QLabel, QPushButton, QDateEdit, QVBoxLayout, QHBoxLayout, QMessageBox, QSizePolicy
-from PyQt6.QtCore import Qt, QDate
-from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtCore import QDate
+from datetime import datetime
 
 
 class AddTripDialog(QDialog):
@@ -68,6 +68,17 @@ class AddTripDialog(QDialog):
         if self.last_day_field.date() < self.first_day_field.date():
             QMessageBox.warning(self, "Validation Error", "The last day of the trip can not be before the first day of the trip.")
             return
+        try:
+            datetime.strptime(self.first_day_field.text(), "%d.%m.%Y").date()
+        except ValueError:
+            QMessageBox.warning(self, "Validation Error", "The 'First Day' field does not match the format 'dd.mm.yyyy'")
+            return
+        try:
+            datetime.strptime(self.last_day_field.text(), "%d.%m.%Y").date()
+        except ValueError:
+            QMessageBox.warning(self, "Validation Error", "The 'Last Day' field does not match the format 'dd.mm.yyyy'")
+            return
+
         super().accept()
 
     def get_data(self):

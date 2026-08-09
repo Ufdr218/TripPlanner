@@ -1,7 +1,10 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QPushButton, QListWidget, QLabel, QSizePolicy, QScrollArea
+from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QPushButton, QListWidget, QLabel, \
+    QSizePolicy, QScrollArea, QListWidgetItem, QMessageBox
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from src.views.add_trip_dialog import AddTripDialog
+from src.database.trip_repository import db_add_trip, db_delete_trip, get_all_trips, get_trip_by_id
+from datetime import datetime
 
 
 class MainWindow(QMainWindow):
@@ -19,9 +22,9 @@ class MainWindow(QMainWindow):
 
         button_container = QWidget()
         button_layout = QHBoxLayout(button_container)
-        self.btn_add = QPushButton("Добавить")
+        self.btn_add = QPushButton("Add")
         self.btn_add.clicked.connect(self.add_trip)
-        self.btn_del = QPushButton("Удалить")
+        self.btn_del = QPushButton("Delete")
         self.btn_del.clicked.connect(self.del_trip)
 
         button_layout.addWidget(self.btn_add, 1)
@@ -35,7 +38,7 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(button_container)
         left_layout.addWidget(self.trip_list)
 
-        self.info_widget = QLabel("Выберите поездку")
+        self.info_widget = QLabel("Choose the trip.")
         self.info_widget.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.info_widget.setMargin(15)
         self.info_widget.setWordWrap(True)
@@ -52,36 +55,47 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(layout)
 
+        self.add_all_trips()
+
 
     def add_trip(self):
         dialog = AddTripDialog(self)
 
         if dialog.exec():
             trip_name, trip_first_day, trip_last_day, trip_description = dialog.get_data()
-            print(trip_name)
-            print(trip_first_day)
-            print(trip_last_day)
-            print(trip_description)
-            print("________________________________")
-            self.trip_list.addItem(trip_name)
+            trip_id = db_add_trip(trip_name, trip_first_day, trip_last_day, trip_description)
+            item = QListWidgetItem(trip_name)
+            item.setData(Qt.ItemDataRole.UserRole, trip_id)
+            self.trip_list.addItem(item)
+            self.trip_list.setCurrentItem(item)
+            self.update_info()
 
 
     def del_trip(self):
-        current_row = self.trip_list.currentRow()
+        current_item = self.trip_list.currentItem()
 
-        if current_row != -1:
-            self.trip_list.blockSignals(True)
-            removed_item = self.trip_list.takeItem(current_row)
-            del removed_item
-
-            self.trip_list.blockSignals(False)
-
-            new_row = -1
-            self.trip_list.setCurrentRow(new_row)
-            self.update_info()
+        if current_item is not None:
+            trip_id = current_item.data(Qt.ItemDataRole.UserRole)
+            db_delete_trip(trip_id)
+            self.trip_list.clear()
+            self.add_all_trips()
         else:
-            print("Сначала выберите поездку для удаления!")
+            QMessageBox.warning(self, "Warning", "No trip selected.")
 
+
+    def add_all_trips(self):
+        trips = get_all_trips()
+        trips = sorted(trips, key=lambda x: datetime.strptime(x['first_day'], "%d.%m.%Y"))
+        for trip in trips:
+            item = QListWidgetItem(trip['name'])
+            item.setData(Qt.ItemDataRole.UserRole, trip['id'])
+            self.trip_list.addItem(item)
 
     def update_info(self):
-        print(f'update row {self.trip_list.currentRow() + 1}')
+        current_item = self.trip_list.currentItem()
+        if current_item is not None:
+            trip_id = current_item.data(Qt.ItemDataRole.UserRole)
+            trip = get_trip_by_id(trip_id)
+            self.info_widget.setText(f"<b>{trip['name']}</b><br>{trip['first_day']} - {trip['last_day']}<br>{trip['description']}")
+        else:
+            self.info_widget.setText("Choose the trip.")
