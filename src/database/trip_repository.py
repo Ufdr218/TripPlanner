@@ -29,10 +29,3 @@ def get_trip_by_id(trip_id):
         cursor.execute("SELECT * FROM trips WHERE id = ?", (trip_id,))
         row = cursor.fetchone()
         return row
-
-'''
-add_trip("a", "01.01.1999", "01.01.1999", "")
-add_trip("b", "03.01.1999", "03.01.1999", "")
-add_trip("c", "02.01.1999", "02.01.1999", "")
-add_trip("d", "03.01.1998", "03.01.1998", "")
-'''
