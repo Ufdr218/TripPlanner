@@ -4,7 +4,9 @@ from pathlib import Path
 
 DB_PATH = Path(__file__).parent.parent.parent / "trip_planner.db"
 def get_connection():
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
 def init_db():
     with get_connection() as conn:
@@ -17,6 +19,19 @@ def init_db():
             first_day TEXT NOT NULL,
             last_day TEXT NOT NULL,
             description TEXT
+        )
+        ''')
+        conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS locations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            trip_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            latitude REAL,
+            longitude REAL,
+            address TEXT,
+            FOREIGN KEY(trip_id) REFERENCES trips(id) ON DELETE CASCADE
         )
         ''')
         conn.commit()
