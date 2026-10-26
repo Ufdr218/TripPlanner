@@ -96,10 +96,19 @@ class MainWindow(QMainWindow):
         current_item = self.trip_list.currentItem()
 
         if current_item is not None:
-            trip_id = current_item.data(Qt.ItemDataRole.UserRole)
-            db_delete_trip(trip_id)
-            self.trip_list.clear()
-            self.add_all_trips()
+            confirm_box = QMessageBox(self)
+            confirm_box.setIcon(QMessageBox.Icon.Question)
+            confirm_box.setWindowTitle(STRINGS[self.current_language]["warning"])
+            confirm_box.setText(STRINGS[self.current_language]["confirm_location_delete"])
+            btn_yes = confirm_box.addButton(STRINGS[self.current_language]["btn_yes"], QMessageBox.ButtonRole.YesRole)
+            btn_no = confirm_box.addButton(STRINGS[self.current_language]["btn_no"], QMessageBox.ButtonRole.NoRole)
+            confirm_box.setDefaultButton(btn_no)
+            confirm_box.exec()
+            if confirm_box.clickedButton() == btn_yes:
+                trip_id = current_item.data(Qt.ItemDataRole.UserRole)
+                db_delete_trip(trip_id)
+                self.trip_list.clear()
+                self.add_all_trips()
         else:
             QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["del_no_trip"])
 
@@ -120,7 +129,6 @@ class MainWindow(QMainWindow):
             description = trip['description'].replace('\n', '<br>') if trip['description'] else ''
             self.info_widget.setText(f"<b>{trip['name']}</b><br>{trip['first_day']} - {trip['last_day']}<br>{description}")
             locations = get_locations_by_trip_id(trip_id)
-            #locations = [{"name": "Эйфелева башня", "lat": 48.8584, "lng": 2.2945}, {"name": "Колизей", "lat": 41.8902, "lng": 12.4922}, {"name": "Биг-Бен", "lat": 51.5007, "lng": -0.1246}]
             self.map_view.render_map(locations)
         else:
             self.info_widget.setText(STRINGS[self.current_language]["info_widget_default"])
@@ -157,7 +165,14 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["unnamed_location"])
 
     def handle_marker_right_click(self, loc_id):
-        #reply = QMessageBox.question(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["confirm_location_delete"], QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-        #if reply == QMessageBox.StandardButton.Yes:
-        db_delete_location(loc_id)
-        self.update_info()
+        confirm_box = QMessageBox(self)
+        confirm_box.setIcon(QMessageBox.Icon.Question)
+        confirm_box.setWindowTitle(STRINGS[self.current_language]["warning"])
+        confirm_box.setText(STRINGS[self.current_language]["confirm_location_delete"])
+        btn_yes = confirm_box.addButton(STRINGS[self.current_language]["btn_yes"], QMessageBox.ButtonRole.YesRole)
+        btn_no = confirm_box.addButton(STRINGS[self.current_language]["btn_no"], QMessageBox.ButtonRole.NoRole)
+        confirm_box.setDefaultButton(btn_no)
+        confirm_box.exec()
+        if confirm_box.clickedButton() == btn_yes:
+            db_delete_location(loc_id)
+            self.update_info()
