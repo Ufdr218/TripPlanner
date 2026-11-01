@@ -8,6 +8,12 @@ def db_add_trip(name, first_day, last_day, description):
         conn.commit()
         return cursor.lastrowid
 
+def db_edit_trip(id, name, first_day, last_day, description):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE trips SET name = ?, first_day = ?, last_day = ?, description = ? WHERE id = ?", (name, first_day, last_day, description, id))
+        conn.commit()
+
 def db_delete_trip(trip_id):
     with get_connection() as conn:
         cursor = conn.cursor()

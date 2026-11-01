@@ -4,8 +4,9 @@ from PyQt6.QtCore import Qt, QSettings
 from PyQt6.QtGui import QIcon
 from src.views.map_widget import MapWidget
 from src.views.add_trip_dialog import AddTripDialog
+from src.views.edit_trip_dialog import EditTripDialog
 from src.views.settings_dialog import SettingsDialog
-from src.database.trip_repository import db_add_trip, db_delete_trip, get_all_trips, get_trip_by_id
+from src.database.trip_repository import db_add_trip, db_edit_trip, db_delete_trip, get_all_trips, get_trip_by_id
 from src.database.location_repository import db_add_location, db_delete_location, get_locations_by_trip_id
 from datetime import datetime
 from src.translations import STRINGS
@@ -35,11 +36,14 @@ class MainWindow(QMainWindow):
         self.btn_settings.clicked.connect(self.open_settings)
         self.btn_add = QPushButton(STRINGS[self.current_language]["btn_add"])
         self.btn_add.clicked.connect(self.add_trip)
+        self.btn_edit = QPushButton(STRINGS[self.current_language]["btn_edit"])
+        self.btn_edit.clicked.connect(self.edit_trip)
         self.btn_del = QPushButton(STRINGS[self.current_language]["btn_del"])
         self.btn_del.clicked.connect(self.del_trip)
 
         button_layout.addWidget(self.btn_settings, 1)
         button_layout.addWidget(self.btn_add, 1)
+        button_layout.addWidget(self.btn_edit, 1)
         button_layout.addWidget(self.btn_del, 1)
         button_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
@@ -78,7 +82,6 @@ class MainWindow(QMainWindow):
 
         self.add_all_trips()
 
-
     def add_trip(self):
         dialog = AddTripDialog(self, self.current_language)
 
@@ -91,6 +94,20 @@ class MainWindow(QMainWindow):
             self.trip_list.setCurrentItem(item)
             self.update_info()
 
+    def edit_trip(self):
+        current_item = self.trip_list.currentItem()
+        if current_item is not None:
+            trip_id = current_item.data(Qt.ItemDataRole.UserRole)
+            dialog = EditTripDialog(get_trip_by_id(trip_id), parent=self, current_language=self.current_language)
+            if dialog.exec():
+                trip_name, trip_first_day, trip_last_day, trip_description = dialog.get_data()
+                db_edit_trip(trip_id, trip_name, trip_first_day, trip_last_day, trip_description)
+                self.trip_list.clear()
+                self.add_all_trips()
+                self.select_trip_by_id(trip_id)
+
+        else:
+            QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["edit_no_trip"])
 
     def del_trip(self):
         current_item = self.trip_list.currentItem()
@@ -112,7 +129,6 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["del_no_trip"])
 
-
     def add_all_trips(self):
         trips = get_all_trips()
         trips = sorted(trips, key=lambda x: datetime.strptime(x['first_day'], "%d.%m.%Y"))
@@ -120,6 +136,15 @@ class MainWindow(QMainWindow):
             item = QListWidgetItem(trip['name'])
             item.setData(Qt.ItemDataRole.UserRole, trip['id'])
             self.trip_list.addItem(item)
+
+    def select_trip_by_id(self, trip_id):
+        for i in range(self.trip_list.count()):
+            item = self.trip_list.item(i)
+            item_id = item.data(Qt.ItemDataRole.UserRole)
+            if item_id == trip_id:
+                self.trip_list.setCurrentItem(item)
+                self.trip_list.scrollToItem(item)
+                break
 
     def update_info(self):
         current_item = self.trip_list.currentItem()
