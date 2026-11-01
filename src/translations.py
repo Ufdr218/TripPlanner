@@ -5,6 +5,7 @@ STRINGS = {
         "btn_add": "Add",
         "btn_edit": "Edit",
         "btn_del": "Delete",
+        "btn_search": "Search",
         "btn_cancel": "Cancel",
         "btn_save": "Save",
         "btn_yes": "Yes",
@@ -17,6 +18,7 @@ STRINGS = {
         "show_map_no_trip": "No trip selected.",
         "add_trip_title": "Add Trip",
         "edit_trip_title": "Edit Trip",
+        "default_search": "Search the location...",
         "name_label": "Name",
         "first_day_label": "First Day",
         "last_day_label": "Last Day",
@@ -30,7 +32,9 @@ STRINGS = {
         "first_day_format": "The 'First Day' field does not match the format 'dd.mm.yyyy'.",
         "last_day_format": "The 'Last Day' field does not match the format 'dd.mm.yyyy'.",
         "settings_title": "Settings",
-        "lang_label": "Language"
+        "lang_label": "Language",
+        "map_nothing_found": "Nothing found",
+        "invalid_geocoder_api_key": "Check the Geocoder API key!"
     },
     "Русский": {
         "app_title": "TripPlanner",
@@ -38,6 +42,7 @@ STRINGS = {
         "btn_add": "Добавить",
         "btn_edit": "Изменить",
         "btn_del": "Удалить",
+        "btn_search": "Найти",
         "btn_cancel": "Отмена",
         "btn_save": "Сохранить",
         "btn_yes": "Да",
@@ -50,6 +55,7 @@ STRINGS = {
         "show_map_no_trip": "Путешествие не выбрано.",
         "add_trip_title": "Добавить путешествие",
         "edit_trip_title": "Изменить путешествие",
+        "default_search": "Поиск места...",
         "name_label": "Название",
         "first_day_label": "Первый день",
         "last_day_label": "Последний день",
@@ -63,6 +69,8 @@ STRINGS = {
         "first_day_format": "Поле 'Первый день' не соответствует формату 'дд.мм.ггггг'.",
         "last_day_format": "Поле 'Последний день' не соответствует формату 'дд.мм.ггггг'.",
         "settings_title": "Настройки",
-        "lang_label": "Язык"
+        "lang_label": "Язык",
+        "map_nothing_found": "Ничего не найдено",
+        "invalid_geocoder_api_key": "Проверьте API ключ геокодера!"
     }
 }

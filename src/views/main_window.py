@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         scroll_info.setWidgetResizable(True)
         scroll_info.setWidget(self.info_widget)
         scroll_info.setMinimumWidth(200)
-        self.map_view = MapWidget(self)
+        self.map_view = MapWidget(parent=self, current_language=self.current_language)
         self.map_view.sig_clicked.connect(self.handle_map_click)
         self.map_view.sig_right_clicked.connect(self.handle_marker_right_click)
 
@@ -172,6 +172,7 @@ class MainWindow(QMainWindow):
         self.btn_settings.setText(STRINGS[self.current_language]["btn_settings"])
         self.btn_add.setText(STRINGS[self.current_language]["btn_add"])
         self.btn_del.setText(STRINGS[self.current_language]["btn_del"])
+        self.map_view.current_language = self.current_language
         self.update_info()
 
     def handle_map_click(self, lat, lng):
