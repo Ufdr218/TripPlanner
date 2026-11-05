@@ -15,12 +15,12 @@ GEOCODER_API_KEY = os.getenv("YANDEX_GEOCODER_API_KEY", "")
 
 
 class MapBridge(QObject):
-    pointClicked = pyqtSignal(float, float)
+    pointClicked = pyqtSignal(float, float, str)
     markerRightClicked = pyqtSignal(int)
 
-    @pyqtSlot(float, float)
-    def receive_coords(self, lat, lng):
-        self.pointClicked.emit(lat, lng)
+    @pyqtSlot(float, float, str)
+    def receive_coords_and_address(self, lat, lng, address):
+        self.pointClicked.emit(lat, lng, address)
 
     @pyqtSlot(int)
     def receive_marker_id(self, loc_id):
@@ -31,7 +31,7 @@ os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
 
 
 class MapWidget(QWidget):
-    sig_clicked = pyqtSignal(float, float)
+    sig_clicked = pyqtSignal(float, float, str)
     sig_right_clicked = pyqtSignal(int)
     def __init__(self, parent=None, current_language="English"):
         super().__init__(parent)
@@ -140,6 +140,22 @@ class MapWidget(QWidget):
                     document.querySelectorAll('.marker.active').forEach((m) => m.classList.remove('active'));
                 }});
                 
+                async function getAddressByCoords(lat, lng) {{
+                    const url = `https://geocode-maps.yandex.ru/v1/?apikey={GEOCODER_API_KEY}&geocode=${{lng}},${{lat}}&format=json&results=1`;
+                    try {{
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        const members = data.response.GeoObjectCollection.featureMember;
+                        if (members && members.length > 0) {{
+                            return members[0].GeoObject.metaDataProperty.GeocoderMetaData.text;
+                        }}
+                        return "";
+                    }}
+                    catch (err) {{
+                        return "";
+                    }}
+                }}
+                
                 async function doSearch() {{
                     const text = document.getElementById('search-input').value.trim();
                     if (!text) return;
@@ -197,12 +213,15 @@ class MapWidget(QWidget):
 
                     map.addChild(new YMapListener({{
                         layer: 'any',
-                        onClick: (object, event) => {{
+                        onClick: async (object, event) => {{
                             if (object) {{
                                 return;
                             }}
+                            const lat = event.coordinates[1];
+                            const lng = event.coordinates[0];
+                            const address = await getAddressByCoords(lat, lng);
                             if (bridge) {{
-                                bridge.receive_coords(event.coordinates[1], event.coordinates[0]);
+                                bridge.receive_coords_and_address(lat, lng, address);
                             }}
                         }}
                     }}));

@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         self.map_view.current_language = self.current_language
         self.update_info()
 
-    def handle_map_click(self, lat, lng):
+    def handle_map_click(self, lat, lng, address):
         current_item = self.trip_list.currentItem()
         if current_item is None:
             QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["show_map_no_trip"])
@@ -185,7 +185,7 @@ class MainWindow(QMainWindow):
         name, ok = QInputDialog.getText(self, STRINGS[self.current_language]["new_location_title"], STRINGS[self.current_language]["name_label"])
         if ok:
             if name.strip():
-                db_add_location(trip_id, name, lat, lng, None)
+                db_add_location(trip_id, name, lat, lng, address)
                 self.update_info()
             else:
                 QMessageBox.warning(self, STRINGS[self.current_language]["warning"], STRINGS[self.current_language]["unnamed_location"])
