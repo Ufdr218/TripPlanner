@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.icon_path = icon_path
         self.settings_icon_path = settings_icon_path
         self.setWindowTitle(STRINGS[self.current_language]["app_title"])
-        self.setMinimumSize(640, 480)
+        self.setMinimumSize(880, 660)
         if self.icon_path.exists():
             self.setWindowIcon(QIcon(str(self.icon_path)))
 
@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
         scroll_info.setWidget(self.info_widget)
         scroll_info.setMinimumWidth(200)
         self.map_view = MapWidget(parent=self, current_language=self.current_language)
+        self.map_view.clear_map()
         self.map_view.sig_clicked.connect(self.handle_map_click)
         self.map_view.sig_right_clicked.connect(self.handle_marker_right_click)
 
@@ -124,6 +125,7 @@ class MainWindow(QMainWindow):
             if confirm_box.clickedButton() == btn_yes:
                 trip_id = current_item.data(Qt.ItemDataRole.UserRole)
                 db_delete_trip(trip_id)
+                self.map_view.clear_map()
                 self.trip_list.clear()
                 self.add_all_trips()
         else:
@@ -156,6 +158,7 @@ class MainWindow(QMainWindow):
             locations = get_locations_by_trip_id(trip_id)
             self.map_view.render_map(locations)
         else:
+            self.map_view.clear_map()
             self.info_widget.setText(STRINGS[self.current_language]["info_widget_default"])
 
     def open_settings(self):

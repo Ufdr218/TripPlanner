@@ -280,6 +280,25 @@ class MapWidget(QWidget):
         """
         self.browser.setHtml(html_data, QUrl("http://localhost/"))
 
+    def clear_map(self):
+        html_data = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <style>
+                html, body {{
+                    width: 100%; height: 100%; padding: 0; margin: 0;
+                    background-color: #f4f9ee;
+                    overflow: hidden;
+                }}
+            </style>
+        </head>
+        <body></body>
+        </html>
+        """
+        self.browser.setHtml(html_data, QUrl("http://localhost/"))
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
