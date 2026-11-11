@@ -13,7 +13,7 @@ from src.translations import STRINGS
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, icon_path, settings_icon_path):
+    def __init__(self, icon_path, settings_icon_path, MAPS_API_KEY, GEOCODER_API_KEY):
         super().__init__()
         settings = QSettings("TripPlanner", "Settings")
         self.current_language = settings.value("Language", "English")
@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         scroll_info.setWidgetResizable(True)
         scroll_info.setWidget(self.info_widget)
         scroll_info.setMinimumWidth(200)
-        self.map_view = MapWidget(parent=self, current_language=self.current_language)
+        self.map_view = MapWidget(parent=self, current_language=self.current_language, MAPS_API_KEY=MAPS_API_KEY, GEOCODER_API_KEY=GEOCODER_API_KEY)
         self.map_view.clear_map()
         self.map_view.sig_clicked.connect(self.handle_map_click)
         self.map_view.sig_right_clicked.connect(self.handle_marker_right_click)

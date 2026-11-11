@@ -5,13 +5,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QUrl
 import os
 import json
 import sys
-from dotenv import load_dotenv
 from src.translations import STRINGS
-
-
-load_dotenv()
-API_KEY = os.getenv("YANDEX_MAPS_API_KEY", "")
-GEOCODER_API_KEY = os.getenv("YANDEX_GEOCODER_API_KEY", "")
 
 
 class MapBridge(QObject):
@@ -33,9 +27,11 @@ os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
 class MapWidget(QWidget):
     sig_clicked = pyqtSignal(float, float, str)
     sig_right_clicked = pyqtSignal(int)
-    def __init__(self, parent=None, current_language="English"):
+    def __init__(self, parent=None, current_language="English", MAPS_API_KEY="", GEOCODER_API_KEY=""):
         super().__init__(parent)
         self.current_language = current_language
+        self.MAPS_API_KEY = MAPS_API_KEY
+        self.GEOCODER_API_KEY = GEOCODER_API_KEY
         layout = QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
 
@@ -93,7 +89,7 @@ class MapWidget(QWidget):
                     box-shadow: 0 0 0 4px rgba(30,136,229,0.35), 0 1px 4px rgba(0,0,0,0.5);
                 }}
             </style>
-            <script src="https://api-maps.yandex.ru/v3/?apikey={API_KEY}&lang={yandex_lang}"></script>
+            <script src="https://api-maps.yandex.ru/v3/?apikey={self.MAPS_API_KEY}&lang={yandex_lang}"></script>
             <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
         </head>
         <body>
@@ -141,7 +137,7 @@ class MapWidget(QWidget):
                 }});
                 
                 async function getAddressByCoords(lat, lng) {{
-                    const url = `https://geocode-maps.yandex.ru/v1/?apikey={GEOCODER_API_KEY}&geocode=${{lng}},${{lat}}&format=json&results=1`;
+                    const url = `https://geocode-maps.yandex.ru/v1/?apikey={self.GEOCODER_API_KEY}&geocode=${{lng}},${{lat}}&format=json&results=1`;
                     try {{
                         const response = await fetch(url);
                         const data = await response.json();
@@ -161,7 +157,7 @@ class MapWidget(QWidget):
                     if (!text) return;
                 
                     try {{
-                        const url = `https://geocode-maps.yandex.ru/v1/?apikey={GEOCODER_API_KEY}&geocode=${{encodeURIComponent(text)}}&format=json&results=1`;
+                        const url = `https://geocode-maps.yandex.ru/v1/?apikey={self.GEOCODER_API_KEY}&geocode=${{encodeURIComponent(text)}}&format=json&results=1`;
                         const response = await fetch(url);
                         const data = await response.json();
                 
