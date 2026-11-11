@@ -174,6 +174,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(STRINGS[self.current_language]["app_title"])
         self.btn_settings.setText(STRINGS[self.current_language]["btn_settings"])
         self.btn_add.setText(STRINGS[self.current_language]["btn_add"])
+        self.btn_edit.setText(STRINGS[self.current_language]["btn_edit"])
         self.btn_del.setText(STRINGS[self.current_language]["btn_del"])
         self.map_view.current_language = self.current_language
         self.update_info()
